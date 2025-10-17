@@ -1,5 +1,6 @@
 # Classification-des-Interventions-Pharmaceutiques
-🧠 Défi 2 – Classification de textes (Analyse pharmaceutique)
+#🧠 Classification de textes (Analyse pharmaceutique)
+
 🎯 Objectif du projet
 
 Ce projet vise à développer et valider des modèles de traitement automatique du langage (NLP) pour catégoriser automatiquement les interventions pharmaceutiques (IP) réalisées lors de l’analyse pharmaceutique des prescriptions hospitalières.
