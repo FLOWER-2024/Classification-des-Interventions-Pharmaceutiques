@@ -79,6 +79,4 @@ Bonus : meilleure performance sur la prédiction binaire
 
 Santé · Analyse de données · NLP · TF-IDF · Classification automatique · Deep Learning · LLM
 
-🧠 Mots-clés
 
-Santé · Analyse de données · NLP · TF-IDF · Classification automatique · Deep Learning · LLM
