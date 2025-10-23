@@ -61,9 +61,7 @@ Nous avons utilisé la méthode **TF-IDF (Term Frequency-Inverse Document Freque
 ### Tâche 1 : Performance de la Détection des Cas Graves
 
 Grâce à l'optimisation du seuil, notre modèle binaire a atteint un **Rappel de 87%** pour une **Précision de 70%**. Cette approche a permis de **réduire de 45%** le nombre de cas graves non détectés par rapport à une optimisation standard du F1-score.
-
-![Comparaison des Matrices de Confusion](img/matrice_confusion_comparaison.png)
-_Légende : La stratégie 2 (Rappel Optimal) a été retenue car elle minimise les Faux Négatifs (94 contre 170)._
+La stratégie 2 (Rappel Optimal) a été retenue car elle minimise les Faux Négatifs (94 contre 170).
 
 ### Tâche 2 : Performance de la Classification Multiclasse
 
@@ -71,7 +69,6 @@ Le modèle a atteint une **exactitude (accuracy) globale de 78%**.
 - **Points forts** : Très bonne performance sur les classes fréquentes (1, 4, 8).
 - **Points faibles** : Difficultés à classifier correctement les classes très rares (ex: classe 7), souvent confondues avec la classe majoritaire (classe 1).
 
-![Matrice de Confusion Multiclasse](img/matrice_confusion_multiclasse.png)
 
 ## 🧮 Scripts et Utilisation
 
