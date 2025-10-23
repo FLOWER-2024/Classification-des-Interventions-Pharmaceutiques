@@ -19,7 +19,7 @@ Les données utilisées proviennent des Hôpitaux Universitaires de Strasbourg.
 - **`SFPC_encodage.xlsx`**: Fournit la correspondance entre les classes SFPC et leurs codes numériques.
 
 ### Environnement Technique
-- **Langage** : Python 3.x
+- **Langage** : Python
 - **Bibliothèques principales** : Pandas, NumPy, NLTK, Scikit-learn, XGBoost, Imbalanced-learn, Matplotlib, Seaborn.
 
 ## 🧩 3. Méthodologie et Approche Réalisée
