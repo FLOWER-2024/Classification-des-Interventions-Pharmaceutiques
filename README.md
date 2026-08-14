@@ -1,88 +1,308 @@
-# 🧠 Classification Automatique des Interventions Pharmaceutiques
+# Classification automatique des interventions pharmaceutiques
 
-## 🎯 1. Objectif du Projet
+> **NLP · Machine Learning · Pharmacie clinique · Sécurité médicamenteuse**
 
-Ce projet vise à développer et valider des modèles de traitement automatique du langage (NLP) pour catégoriser automatiquement les interventions pharmaceutiques (IP) réalisées lors de l’analyse pharmaceutique des prescriptions hospitalières.
+Projet de traitement automatique du langage naturel (**NLP**) consacré à la **classification automatique des interventions pharmaceutiques (IP)** issues de l’analyse pharmaceutique des prescriptions hospitalières.
 
-Les modèles utilisent les commentaires des pharmaciens et les libellés de molécules prescrites pour accomplir deux tâches principales :
+L’objectif est d’évaluer dans quelle mesure des modèles de machine learning peuvent exploiter les **commentaires des pharmaciens** et les **libellés des molécules prescrites** afin d’automatiser deux tâches complémentaires :
 
-1.  Tâche 1: Prédire si une erreur de prescription potentiellement **grave** a été identifiée.
-2.  Tâche 2: Classer chaque commentaire dans l’une des **11 classes principales** de la Société Française de Pharmacie Clinique (SFPC).
+1. **Détection des interventions potentiellement graves** : classification binaire visant à identifier les situations nécessitant une attention particulière.
+2. **Classification des interventions pharmaceutiques** : attribution d’une intervention à l’une des **11 classes principales de la classification SFPC**.
 
-L'automatisation de ce processus permet d'assister les pharmaciens, d'améliorer l'efficience du suivi et de renforcer la sécurité des patients.
+Le projet s’inscrit dans une démarche de valorisation des données de pharmacie clinique et d’aide à la détection des situations à risque médicamenteux.
 
-## 🧾 2. Données et Outils
+---
 
-### Données
-Les données utilisées proviennent des Hôpitaux Universitaires de Strasbourg.
-- **`data_defi3.csv.gz`**: Contient les libellés de molécules, les commentaires des pharmaciens et les classes d'IP.
-- **`SFPC_encodage.xlsx`**: Fournit la correspondance entre les classes SFPC et leurs codes numériques.
+## Résultats principaux
 
-### Environnement Technique
-- **Langage** : Python
-- **Bibliothèques principales** : Pandas, NumPy, NLTK, Scikit-learn, XGBoost, Imbalanced-learn, Matplotlib, Seaborn.
+| Tâche       | Problème                                 | Modèle principal | Performance rapportée                |
+| ----------- | ---------------------------------------- | ---------------- | ------------------------------------ |
+| **Tâche 1** | Détection des cas potentiellement graves | VotingClassifier | **Rappel : 87 % · Précision : 70 %** |
+| **Tâche 2** | Classification en 11 classes SFPC        | XGBoost          | **Accuracy : 78 %**                  |
 
-## 🧩 3. Méthodologie et Approche Réalisée
+Pour la tâche 1, le seuil de décision a été ajusté afin de privilégier le **rappel**, dans une logique de réduction des faux négatifs.
 
-Notre solution s'articule autour d'un pipeline NLP complet, du nettoyage des données brutes à la modélisation prédictive.
+La stratégie retenue rapporte **94 faux négatifs contre 170** avec une optimisation standard fondée sur le F1-score.
 
-### 3.1. Prétraitement des Données et Ingénierie de Caractéristiques
+> **Important :** les performances présentées correspondent aux évaluations réalisées dans le cadre de ce projet. Elles ne constituent pas une validation clinique externe et ne doivent pas être interprétées comme une performance directement transposable à d’autres établissements ou populations.
 
-Une fonction de nettoyage robuste a été appliquée pour standardiser le texte :
-- Conversion en minuscules et suppression des accents.
-- **Tokenisation sémantique** : Remplacement des dosages (ex: `10mg`) et dates par des jetons génériques (`<dosage>`, `<date>`) pour une meilleure généralisation.
-- **Racinisation (Stemming)** : Réduction des mots à leur racine (ex: `recommandé` -> `recommand`).
+---
 
-Pour injecter une connaissance métier, nous avons également créé **3 caractéristiques binaires (features)** en détectant la présence de mots-clés critiques :
-- `contient_ci` (contre-indication)
-- `contient_surdosage`
-- `contient_interaction`
+## Objectifs
 
-### 3.2. Représentation Textuelle
+### Objectif principal
 
-Nous avons utilisé la méthode **TF-IDF (Term Frequency-Inverse Document Frequency)** pour convertir les commentaires nettoyés en vecteurs numériques. Cette approche donne plus de poids aux mots qui sont à la fois fréquents dans un commentaire mais rares dans l'ensemble des documents, ce qui permet de faire ressortir les termes les plus significatifs.
+Développer un pipeline reproductible de NLP et de machine learning permettant d’automatiser la classification d’interventions pharmaceutiques à partir de données textuelles issues de l’activité de pharmacie clinique.
 
-### 3.3. Modélisation
+### Objectifs secondaires
 
-#### Tâche 1 : Prédiction de la Gravité (Binaire)
-- **Définition des classes graves** : 4 (Surdosage), 5 (Non indiqué), 6.3 (Association déconseillée), 6.4 (Contre-indication).
-- **Gestion du Déséquilibre** : Les cas graves étant minoritaires (17%), nous avons utilisé la technique **SMOTE** (Synthetic Minority Over-sampling Technique) pour rééquilibrer le jeu de données d'entraînement.
-- **Modèle** : Un **`VotingClassifier`** a été choisi pour sa robustesse. Il agrège les prédictions de trois modèles :
-  1.  Régression Logistique
-  2.  Random Forest
-  3.  XGBoost (avec pondération des classes)
-- **Optimisation du Seuil** : Le seuil de décision a été optimisé pour **maximiser le Rappel** (capacité à détecter les cas graves) tout en maintenant une Précision acceptable, une stratégie cruciale pour la sécurité des patients.
+* Prétraiter et normaliser les commentaires pharmaceutiques.
+* Transformer les textes en représentations numériques exploitables par des algorithmes de machine learning.
+* Intégrer des connaissances métier sous forme de variables indicatrices.
+* Gérer le déséquilibre entre les classes.
+* Comparer et combiner plusieurs modèles de classification.
+* Optimiser le seuil de décision en fonction de l’objectif de détection.
+* Évaluer les performances sur des jeux de données distincts.
 
-#### Tâche 2 : Classification en 11 Classes (Multiclasse)
-- **Modèle** : Un classifieur **`XGBoost`** a été entraîné, cet algorithme étant très performant pour les tâches de classification multiclasse.
+---
 
-## 📊 4. Résultats et Évaluation
+## Données
 
-### Tâche 1 : Performance de la Détection des Cas Graves
+Les données utilisées dans ce projet proviennent des **Hôpitaux Universitaires de Strasbourg (HUS)**.
 
-Grâce à l'optimisation du seuil, notre modèle binaire a atteint un **Rappel de 87%** pour une **Précision de 70%**. Cette approche a permis de **réduire de 45%** le nombre de cas graves non détectés par rapport à une optimisation standard du F1-score.
-La stratégie 2 (Rappel Optimal) a été retenue car elle minimise les Faux Négatifs (94 contre 170).
+### Fichiers principaux
 
-### Tâche 2 : Performance de la Classification Multiclasse
+| Fichier                        | Description                                                                                                                                                          |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `data_defi3.csv`               | Données utilisées pour l’analyse et l’entraînement, comprenant notamment les libellés de molécules, les commentaires pharmaceutiques et les classes d’interventions. |
+| `SFPC_encodage.csv`            | Table de correspondance utilisée pour l’encodage des classes d’interventions selon la classification SFPC.                                                           |
+| `valid_set.csv`                | Jeu de données de validation utilisé pour l’évaluation et/ou la production des prédictions.                                                                          |
+| `predictions_test_set.csv`     | Prédictions produites sur le jeu de test.                                                                                                                            |
+| `predictions_valid_set.csv`    | Prédictions produites sur le jeu de validation.                                                                                                                      |
+| `defi_2_VERSION_FINALE .ipynb` | Notebook principal contenant le pipeline d’analyse et de modélisation.                                                                                               |
 
-Le modèle a atteint une **exactitude (accuracy) globale de 78%**.
-- **Points forts** : Très bonne performance sur les classes fréquentes (1, 4, 8).
-- **Points faibles** : Difficultés à classifier correctement les classes très rares (ex: classe 7), souvent confondues avec la classe majoritaire (classe 1).
+### Confidentialité et gouvernance
 
+Les données de santé nécessitent une attention particulière en matière de confidentialité, de gouvernance et de réutilisation.
 
-## 🧮 Scripts et Utilisation
+Toute utilisation ou redistribution des données doit respecter les conditions applicables aux données sources ainsi que le cadre réglementaire en vigueur.
 
-### Fichiers du Projet
-- `defi_2_VERSION_FINALE.ipynb` : Notebook Jupyter contenant l'ensemble du code pour l'analyse, l'entraînement et la génération des prédictions.
-- `predictions_test_set.csv` : Prédictions sur notre jeu de test interne.
-- `predictions_valid_set.csv` : Fichier de soumission final pour le jeu de validation.
-- `img/` : Dossier contenant les visualisations.
+---
 
-### Comment Exécuter
-1.  Assurez-vous que toutes les bibliothèques listées dans le notebook sont installées.
-2.  Exécutez les cellules du notebook `defi_2_VERSION_FINALE.ipynb` de manière séquentielle.
-3.  Les fichiers de prédictions seront générés à la fin de l'exécution.
+## Méthodologie
 
-## 🧠 Mots-clés
+Le workflow repose sur plusieurs étapes :
 
-Santé · Analyse de données · NLP · TF-IDF · Classification automatique · Machine Learning · XGBoost
+```text
+Données
+   ↓
+Prétraitement / normalisation du texte
+   ↓
+Extraction des caractéristiques
+   ↓
+TF-IDF + variables métier
+   ↓
+Gestion du déséquilibre
+   ↓
+Modélisation
+   ↓
+Évaluation
+   ↓
+Optimisation du seuil
+   ↓
+Prédictions
+```
+
+### 1. Prétraitement du texte
+
+Les commentaires pharmaceutiques sont normalisés afin d’améliorer la robustesse des représentations textuelles :
+
+* conversion en minuscules ;
+* suppression des accents ;
+* normalisation de certaines informations variables ;
+* remplacement de certains **dosages** et **dates** par des tokens génériques (`<dosage>`, `<date>`) ;
+* stemming afin de réduire certaines variations morphologiques.
+
+Cette étape vise à limiter la variabilité lexicale tout en conservant l’information utile à la classification.
+
+### 2. Variables issues de la connaissance métier
+
+Trois variables binaires ont été construites à partir de mots-clés associés à des situations médicamenteuses critiques :
+
+* `contient_ci` : présence d’un terme associé à une **contre-indication** ;
+* `contient_surdosage` : présence d’un terme associé à un **surdosage** ;
+* `contient_interaction` : présence d’un terme associé à une **interaction médicamenteuse**.
+
+Ces variables complètent la représentation purement textuelle du commentaire.
+
+### 3. Représentation TF-IDF
+
+Les commentaires sont transformés en vecteurs numériques à l’aide de **TF-IDF (Term Frequency–Inverse Document Frequency)**.
+
+Cette représentation permet de pondérer les termes selon leur fréquence dans un document et leur capacité à distinguer les documents au sein du corpus.
+
+---
+
+## Modélisation
+
+### Tâche 1 — Détection des interventions potentiellement graves
+
+La tâche binaire définit comme situations graves les classes :
+
+* **4** — Surdosage ;
+* **5** — Non indiqué ;
+* **6.3** — Association déconseillée ;
+* **6.4** — Contre-indication.
+
+### Gestion du déséquilibre
+
+Les observations correspondant aux situations graves représentent environ **17 %** des données d’apprentissage.
+
+La méthode **SMOTE (Synthetic Minority Over-sampling Technique)** a été utilisée sur le jeu d’entraînement afin de limiter l’effet du déséquilibre des classes.
+
+### Modèle
+
+Un **VotingClassifier** combine trois familles de modèles :
+
+1. Régression logistique ;
+2. Random Forest ;
+3. XGBoost avec pondération des classes.
+
+### Optimisation du seuil
+
+Compte tenu de l’objectif de détection des situations potentiellement graves, l’optimisation privilégie le **rappel** afin de limiter les faux négatifs, tout en conservant une précision acceptable.
+
+---
+
+### Tâche 2 — Classification multiclasse
+
+La seconde tâche consiste à prédire la classe SFPC parmi **11 catégories**.
+
+Le modèle principal retenu est un **XGBoost** adapté à la classification multiclasse.
+
+---
+
+## Évaluation
+
+### Tâche 1 — Classification binaire
+
+La stratégie d’optimisation du seuil rapportée dans le projet obtient :
+
+* **Rappel : 87 %**
+* **Précision : 70 %**
+
+L’optimisation orientée rappel a permis de réduire le nombre de cas graves non détectés par rapport à une stratégie standard basée sur le F1-score :
+
+* **94 faux négatifs** avec la stratégie orientée rappel ;
+* **170 faux négatifs** avec la stratégie de comparaison.
+
+### Tâche 2 — Classification multiclasse
+
+Le modèle multiclasse obtient une **accuracy globale de 78 %**.
+
+Les performances sont meilleures pour les classes les plus représentées, notamment les classes **1, 4 et 8**.
+
+Les classes très rares restent plus difficiles à prédire, avec notamment des confusions avec la classe majoritaire.
+
+> **Interprétation :** compte tenu du déséquilibre entre les catégories, l’accuracy globale doit être interprétée conjointement avec les métriques par classe, notamment la précision, le rappel et le F1-score.
+
+---
+
+## Structure du dépôt
+
+```text
+Classification-des-Interventions-Pharmaceutiques/
+│
+├── README.md
+├── data_defi3.csv
+├── valid_set.csv
+├── SFPC_encodage.csv
+├── predictions_test_set.csv
+├── predictions_valid_set.csv
+└── defi_2_VERSION_FINALE .ipynb
+```
+
+### Notebook principal
+
+`defi_2_VERSION_FINALE .ipynb` contient le workflow d’analyse, de prétraitement, d’entraînement des modèles, d’évaluation et de génération des prédictions.
+
+---
+
+## Technologies utilisées
+
+| Technologie          | Utilisation                          |
+| -------------------- | ------------------------------------ |
+| **Python**           | Développement du pipeline            |
+| **Jupyter Notebook** | Analyse et expérimentation           |
+| **Pandas**           | Manipulation des données             |
+| **NumPy**            | Calcul numérique                     |
+| **NLTK**             | Traitement du langage naturel        |
+| **Scikit-learn**     | Prétraitement, modèles et évaluation |
+| **XGBoost**          | Apprentissage supervisé              |
+| **imbalanced-learn** | Gestion du déséquilibre / SMOTE      |
+| **Matplotlib**       | Visualisation                        |
+| **Seaborn**          | Visualisation statistique            |
+
+---
+
+## Reproduire l’analyse
+
+### Prérequis
+
+Python 3 et un environnement Jupyter sont nécessaires.
+
+Installation des principales dépendances :
+
+```bash
+pip install pandas numpy nltk scikit-learn xgboost imbalanced-learn matplotlib seaborn jupyter
+```
+
+### Cloner le dépôt
+
+```bash
+git clone https://github.com/FLOWER-2024/Classification-des-Interventions-Pharmaceutiques.git
+cd Classification-des-Interventions-Pharmaceutiques
+```
+
+### Lancer Jupyter
+
+```bash
+jupyter notebook
+```
+
+Puis ouvrir :
+
+```text
+defi_2_VERSION_FINALE .ipynb
+```
+
+et exécuter les cellules dans l’ordre.
+
+> Pour une reproduction rigoureuse, il est recommandé de documenter les versions de Python et des principales bibliothèques ainsi que les paramètres des modèles.
+
+---
+
+## Limites
+
+Plusieurs limites doivent être prises en compte avant toute utilisation opérationnelle :
+
+* déséquilibre entre les classes, notamment pour les catégories rares ;
+* dépendance aux caractéristiques linguistiques du corpus disponible ;
+* risque de dégradation des performances lors d’une application à un autre établissement ou à une autre population ;
+* absence de validation clinique externe dans le cadre présenté ici ;
+* nécessité d’analyser les performances par classe et pas uniquement l’accuracy globale ;
+* nécessité de documenter précisément les versions logicielles, les paramètres et la stratégie de séparation des jeux de données.
+
+---
+
+## Perspectives
+
+Les développements futurs pourraient notamment porter sur :
+
+* la comparaison avec des représentations par embeddings et des modèles de langage ;
+* l’évaluation de modèles NLP plus avancés ;
+* l’analyse de la calibration des probabilités ;
+* la validation externe sur un corpus indépendant ;
+* l’analyse des erreurs par type d’intervention pharmaceutique ;
+* l’étude de l’explicabilité des prédictions ;
+* l’évaluation de la robustesse du modèle sur des données provenant d’autres contextes hospitaliers.
+
+---
+
+## Compétences mobilisées
+
+**Data Science · Machine Learning · NLP · Classification supervisée · Feature engineering · TF-IDF · SMOTE · XGBoost · Scikit-learn · Python · Analyse de données de santé · Pharmacie clinique**
+
+---
+
+## Statut du projet
+
+Projet d’analyse de données et de **machine learning appliqué à la pharmacie clinique et aux données de santé**.
+
+Les résultats présentés correspondent à l’expérimentation décrite dans le notebook et doivent être interprétés en tenant compte du contexte des données, de la méthodologie utilisée et des limites présentées ci-dessus.
+
+---
+
+## Mots-clés
+
+**NLP · Natural Language Processing · Machine Learning · Pharmacie clinique · Interventions pharmaceutiques · SFPC · Sécurité médicamenteuse · Classification · XGBoost · TF-IDF · SMOTE · Python · Données de santé**
